@@ -1,4 +1,5 @@
 ﻿using EmailAspNetCore.Contracts;
+using EmailAspNetCore.Helpers;
 using EmailAspNetCore.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +14,13 @@ internal static class EmailDependencyInjection
             [FromServices] IEmailService service,
             CancellationToken token) =>
         {
+            var parseBody = model.IsMarkDown
+            ? MarkDownHelper.ToHtml(model.Body)
+            : model.Body;
+
             await service.SendAsync(
                 model.Subject,
-                model.Body,
+                parseBody,
                 model.To,
                 token);
 
