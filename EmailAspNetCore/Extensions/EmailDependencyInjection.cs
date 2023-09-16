@@ -18,13 +18,28 @@ internal static class EmailDependencyInjection
             ? MarkDownHelper.ToHtml(model.Body)
             : model.Body;
 
-            await service.SendAsync(
+            try
+            {
+                await service.SendAsync(
                 model.Subject,
                 parseBody,
                 model.To,
                 token);
 
-            return Results.Ok();
+                return Results.Json(new ResultModel
+                {
+                    Success = true,
+                    Message = parseBody
+                });
+            }
+            catch
+            {
+                return Results.Json(new ResultModel
+                {
+                    Success = false,
+                    Message = "Internal Server error"
+                }, statusCode: 500);
+            }
         });
 
         return app;
